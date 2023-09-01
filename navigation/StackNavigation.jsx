@@ -11,7 +11,7 @@ import SearchScreen from "../screens/SearchScreen";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import CartScreen from "../screens/CartScreen";
-
+import ProductScreen from "../screens/ProductScreen";
 //create the stack containers to hold the screens
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -37,6 +37,8 @@ const BottomTab = ({ route }) => {
             iconName = focused ? "search" : "search-outline";
           } else if (rn === "Cart") {
             iconName = focused ? "cart" : "cart-outline";
+          } else if (rn === "Favorite") {
+            iconName = focused ? "heart" : "heart-outline";
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -76,10 +78,17 @@ const StackNavigation = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="Product"
+          component={ProductScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="Bottom"
           component={BottomTab}
           options={{ headerShown: false }}
         />
+        
+      
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -12,31 +12,45 @@ import {
   Image,
   Pressable,
 } from "react-native";
-import React, { useState } from "react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import React, { useState, useEffect } from "react";
+import { getAuth, signInWithEmailAndPassword } from "@firebase/auth";
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./firebase-config";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({ navigation, route }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        navigation.replace("Bottom");
+      }
+    });
+    return unsubscribe;
+  }, []);
   const handleSigin = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        console.log(user.email);
-        navigation.navigate("Bottom");
       })
       .catch((error) => alert(error.message));
   };
   return (
     <SafeAreaView style={styles.container}>
+      <Image
+        source={require("../assets/gallery/Logo.png")}
+        style={{
+          width: "100%",
+          height: 300,
+          resizeMode: "contain",
+        }}
+      />
       <View style={styles.header}>
-        <Text style={{ fontSize: 20 }}>Login to Your Account </Text>
+        <Text style={{ fontSize: 18 }}>Login to Your Account </Text>
       </View>
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <KeyboardAvoidingView
@@ -75,8 +89,11 @@ const LoginScreen = ({ navigation }) => {
               </TouchableOpacity>
             </View>
           </View>
-          <Pressable style={styles.button} onPress={handleSigin}>
-            <Text>Sign In</Text>
+          <Pressable
+            style={styles.button}
+            onPress={() => navigation.navigate("Bottom")}
+          >
+            <Text style={{ color: "white" }}>Sign In</Text>
           </Pressable>
           <View style={styles.account}>
             <Text>Don't have an Account?</Text>
@@ -95,13 +112,12 @@ export default LoginScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: "20%",
   },
   input: {
     paddingHorizontal: 15,
   },
   button: {
-    backgroundColor: "grey",
+    backgroundColor: "orange",
     width: "40%",
     height: 40,
     alignItems: "center",
@@ -109,11 +125,12 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginTop: 40,
     alignSelf: "center",
+    borderRadius: 5,
   },
   inputContainer: {
     marginLeft: 20,
     width: "90%",
-    marginTop: "50%",
+    marginTop: 20,
   },
   input: {
     width: "100%",
@@ -128,20 +145,15 @@ const styles = StyleSheet.create({
     height: 40,
     borderColor: "grey",
     borderWidth: 1,
-    marginTop: 20,
+    marginTop: 40,
     paddingHorizontal: 10,
     borderRadius: 5,
   },
   eyeIcon: {
     right: 40,
-    top: 10,
+    top: 20,
   },
-  account: {
-    flexDirection: "row",
-    gap: 5,
-    marginLeft: 20,
-    marginTop: 10,
-  },
+
   textAccount: {
     color: "blue",
   },

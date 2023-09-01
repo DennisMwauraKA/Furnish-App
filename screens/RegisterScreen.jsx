@@ -12,34 +12,45 @@ import {
   Image,
   Pressable,
   Alert,
+  
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./firebase-config";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
-import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
-const RegisterScreen = ({ navigation }) => {
+const RegisterScreen = ({ navigation, route }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-
+ 
   const handleSignUp = () => {
-    createUserWithEmailAndPassword(auth, email, password)
+    createUserWithEmailAndPassword(auth, email, password, username)
       .then((userCredential) => {
         Alert.alert(`Hey There!! Account Created successfuly`);
         const user = userCredential.user;
-       
+        navigation.navigate("Login");
       })
       .catch((error) => alert(error.message));
   };
   return (
     <SafeAreaView style={styles.container}>
+      <View>
+        <Image
+          source={require("../assets/gallery/Logo.png")}
+          style={{
+            width: "100%",
+           height:300,
+            resizeMode:"contain",
+            
+          }}
+        />
+      </View>
       <View style={styles.header}>
-        <Text style={{ fontSize: 20 }}>Register for Your Account </Text>
+        <Text style={{ fontSize: 18 }}>Register for Your Account </Text>
       </View>
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <KeyboardAvoidingView
@@ -79,9 +90,8 @@ const RegisterScreen = ({ navigation }) => {
             </View>
           </View>
           <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-            <Text>Sign Up</Text>
+            <Text style={{ color: "white" }}>Sign Up</Text>
           </TouchableOpacity>
-        
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
     </SafeAreaView>
@@ -93,13 +103,13 @@ export default RegisterScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: "20%",
+    
   },
   input: {
     paddingHorizontal: 15,
   },
   button: {
-    backgroundColor: "grey",
+    backgroundColor: "orange",
     width: "40%",
     height: 40,
     alignItems: "center",
@@ -112,8 +122,9 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginLeft: 20,
     width: "90%",
-    marginTop: "40%",
+    marginTop: "5%",
   },
+
   input: {
     width: "100%",
     borderWidth: 1,
@@ -136,7 +147,7 @@ const styles = StyleSheet.create({
     top: 20,
     right: 30,
   },
- 
+
   textAccount: {
     color: "blue",
   },
