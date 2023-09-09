@@ -8,15 +8,22 @@ import {
   Pressable,
   FlatList,
   Dimensions,
+  Image,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { FlashList } from "@shopify/flash-list";
+import { StatusBar } from "expo-status-bar";
 import Carousel from "../components/Carousel";
+
 import axios from "axios";
-const HomeScreen = ({ navigation, route }) => {
+
+const HomeScreen = ({ navigation }) => {
   const [greeting, setGreeting] = useState("");
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const { width, height } = Dimensions.get("window");
 
@@ -26,11 +33,8 @@ const HomeScreen = ({ navigation, route }) => {
     try {
       const res = await axios.get("http://192.168.43.244:3000/categories");
       setCategories(res.data);
-
-      console.log(res.data);
     } catch (error) {
       console.log(error);
-      
     }
   };
 
@@ -40,15 +44,21 @@ const HomeScreen = ({ navigation, route }) => {
   }, []);
 
   //fetch products under that category
-  const handleCategorySelect = async (categoryName) => {
+  const handleCategorySelect = async (categoryName = "Furniture") => {
     try {
-    const res = await axios .get(`http://192.168.43.244:3000/products/category/${categoryName}`)
-      setProducts(res.data)
-      console.log(res.data);
-
+      setIsLoading(true);
+      const res = await axios.get(
+        `http://192.168.43.244:3000/products/category/${categoryName}`
+      );
+      setProducts(res.data);
+      setIsLoading(false);
     } catch (error) {
       console.log("Error fetching products:", error);
-      
+      setIsLoading(false);
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 2000);
     }
     setSelectedCategory(categoryName);
   };
@@ -64,6 +74,7 @@ const HomeScreen = ({ navigation, route }) => {
       setGreeting("Good Evening");
     }
   }, []);
+
   return (
     <SafeAreaView>
       <View style={styles.header}>
@@ -72,15 +83,13 @@ const HomeScreen = ({ navigation, route }) => {
       </View>
 
       <View style={styles.searchInput}>
-        <View>
-          <TextInput
-            placeholder="What are You Searching for"
-            value=""
-            onPressIn={() => navigation.navigate("Search")}
-          />
-        </View>
+        <TextInput
+          placeholder="What are You Searching for"
+          value=""
+          onPressIn={() => navigation.navigate("Search")}
+        />
         <TouchableOpacity>
-          <FontAwesome name={"search"} size={26} color={"#000"} />
+          <FontAwesome name={"search"} size={26} color={"orange"} />
         </TouchableOpacity>
       </View>
 
@@ -97,43 +106,57 @@ const HomeScreen = ({ navigation, route }) => {
         >
           Grab Your Best Home Decor
         </Text>
-        {/*displays the categories available*/}
-        <View style={styles.categoriesContainer}>
-          <FlatList
-            data={categories}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item._id}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => handleCategorySelect(item.name)}
-                style={[
-                  styles.categoryItem,
-                  selectedCategory === item.name && styles.selectedCategory,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.categoryText,
-                    selectedCategory === item.name &&
-                      styles.selectedCategoryText,
-                  ]}
-                >
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-
-        {selectedCategory && (
-          <View style={styles.productContainer}>
+        {/*displays the categories available and also use the Activity indicator*/}
+        {isLoading ? (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 15,
+            }}
+          >
+            <ActivityIndicator size={"large"} color={"orange"} />
+          </View>
+        ) : (
+          <View style={styles.categoriesContainer}>
             <FlatList
-              data={products}
-              horizontal
+              data={categories}
+              horizontal={true}
               showsHorizontalScrollIndicator={false}
               keyExtractor={(item) => item._id}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => handleCategorySelect(item.name)}
+                  style={[
+                    styles.categoryItem,
+                    selectedCategory === item.name && styles.selectedCategory,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.categoryText,
+                      selectedCategory === item.name &&
+                        styles.selectedCategoryText,
+                    ]}
+                  >
+                    {item.name}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        )}
+
+        {selectedCategory && (
+          <View style={styles.products}>
+            <FlashList
+              data={products}
+              horizontal
+              keyExtractor={(item) => item._id}
+              estimatedItemSize={200}
+              showsHorizontalScrollIndicator={false}
               ItemSeparatorComponent={() => (
                 <View style={styles.separatorproduct} />
               )}
@@ -141,18 +164,47 @@ const HomeScreen = ({ navigation, route }) => {
                 <Pressable
                   onPress={() => navigation.navigate("Product", { ...item })}
                   style={[
-                    styles.products,
+                    styles.flashlist,
                     { width: width * 0.8, height: height / 3.5 },
                   ]}
                 >
-                  <Text>{item.name}</Text>
-                  <Text>{item.price}</Text>
+                  <Image
+                    source={{ uri: item.image }}
+                    style={{
+                      width: "100%",
+                      height: 140,
+                      resizeMode: "cover",
+                      borderTopLeftRadius: 10,
+                      borderTopRightRadius: 10,
+                    }}
+                  />
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      marginLeft: 15,
+                      marginTop: 10,
+                      fontSize: 17,
+                    }}
+                  >
+                    {item.name}
+                  </Text>
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      marginLeft: 15,
+                      marginTop: 10,
+                      fontSize: 16,
+                    }}
+                  >
+                    Ksh:{item.price}
+                  </Text>
                 </Pressable>
               )}
             />
           </View>
         )}
       </View>
+      <StatusBar translucent backgroundColor="transparent" />
     </SafeAreaView>
   );
 };
@@ -162,7 +214,7 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   header: {
     marginLeft: 15,
-    marginTop: 40,
+    marginTop: 25,
   },
   headerTextA: {
     fontSize: 24,
@@ -189,8 +241,9 @@ const styles = StyleSheet.create({
   },
   categoryItem: {
     padding: 10,
-    width: 100,
-    borderWidth: 1,
+    width: 90,
+    borderColor: "grey",
+    borderWidth: 0.8,
     borderRadius: 15,
     marginTop: 10,
   },
@@ -210,21 +263,26 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   separatorproduct: {
-    marginHorizontal: 20,
+    marginHorizontal: 10,
   },
   products: {
-    backgroundColor: "#FFF",
     marginTop: 10,
     marginHorizontal: 20,
-    elevation: 10,
-    borderRadius:10,
-    shadowColor: "black",
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 3 },
   },
   productContainer: {
     marginTop: 10,
     marginBottom: 20,
-   
+  },
+  flashlist: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    elevation: 10,
+    shadowColor: "black",
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 3 },
+    marginTop: 30,
+  },
+  textProduct: {
+    fontSize: 18,
   },
 });

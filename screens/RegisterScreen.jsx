@@ -12,40 +12,44 @@ import {
   Image,
   Pressable,
   Alert,
-  
+  ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "./firebase-config";
+import { firebaseConfig } from "../firebase/firebase-config";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 const RegisterScreen = ({ navigation, route }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
- 
+
   const handleSignUp = () => {
+    setLoading(true);
     createUserWithEmailAndPassword(auth, email, password, username)
       .then((userCredential) => {
         Alert.alert(`Hey There!! Account Created successfuly`);
         const user = userCredential.user;
         navigation.navigate("Login");
       })
-      .catch((error) => alert(error.message));
+      .catch((error) => {
+        setLoading(false);
+        alert(error.message);
+      });
   };
   return (
     <SafeAreaView style={styles.container}>
       <View>
         <Image
-          source={require("../assets/gallery/Logo.png")}
+          source={require("../assets/gallery/furnish.png")}
           style={{
             width: "100%",
-           height:300,
-            resizeMode:"contain",
-            
+            height: 300,
+            resizeMode: "contain",
           }}
         />
       </View>
@@ -89,8 +93,16 @@ const RegisterScreen = ({ navigation, route }) => {
               </Pressable>
             </View>
           </View>
-          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-            <Text style={{ color: "white" }}>Sign Up</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleSignUp}
+            disabled={!!loading}
+          >
+            {loading ? (
+              <ActivityIndicator color={"white"} size={"large"} />
+            ) : (
+              <Text style={{ color: "white" }}>Sign Up</Text>
+            )}
           </TouchableOpacity>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
@@ -103,7 +115,6 @@ export default RegisterScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    
   },
   input: {
     paddingHorizontal: 15,

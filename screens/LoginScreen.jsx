@@ -11,16 +11,18 @@ import {
   Keyboard,
   Image,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { getAuth, signInWithEmailAndPassword } from "@firebase/auth";
 import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "./firebase-config";
+import { firebaseConfig } from "../firebase/firebase-config";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 const LoginScreen = ({ navigation, route }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
@@ -33,16 +35,21 @@ const LoginScreen = ({ navigation, route }) => {
     return unsubscribe;
   }, []);
   const handleSigin = () => {
+    setLoading(true); //start loading
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
+        setLoading(false);
       })
-      .catch((error) => alert(error.message));
+      .catch((error) => {
+        setLoading(false); // Stop loading in case of an error
+        alert(error.message);
+      });
   };
   return (
     <SafeAreaView style={styles.container}>
       <Image
-        source={require("../assets/gallery/Logo.png")}
+        source={require("../assets/gallery/furnish.png")}
         style={{
           width: "100%",
           height: 300,
@@ -92,8 +99,13 @@ const LoginScreen = ({ navigation, route }) => {
           <Pressable
             style={styles.button}
             onPress={() => navigation.navigate("Bottom")}
+            disabled={!!loading}
           >
-            <Text style={{ color: "white" }}>Sign In</Text>
+            {loading ? (
+              <ActivityIndicator color="white" size={"small"} />
+            ) : (
+              <Text style={{ color: "white" }}>Sign In</Text>
+            )}
           </Pressable>
           <View style={styles.account}>
             <Text>Don't have an Account?</Text>
