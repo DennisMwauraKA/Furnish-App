@@ -39,6 +39,7 @@ const LoginScreen = ({ navigation, route }) => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
+        const firebaseUid = user.uid;
         setLoading(false);
       })
       .catch((error) => {

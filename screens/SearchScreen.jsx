@@ -10,7 +10,6 @@ import {
   Dimensions,
   SafeAreaView,
   ActivityIndicator,
-  KeyboardAvoidingView
 } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import ProductSearch from "../components/ProductSearch";

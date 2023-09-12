@@ -24,7 +24,6 @@ const RegisterScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
@@ -34,6 +33,7 @@ const RegisterScreen = ({ navigation, route }) => {
       .then((userCredential) => {
         Alert.alert(`Hey There!! Account Created successfuly`);
         const user = userCredential.user;
+        const firebaseUid = user.uid;
         navigation.navigate("Login");
       })
       .catch((error) => {

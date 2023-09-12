@@ -12,7 +12,7 @@ import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import CartScreen from "../screens/CartScreen";
 import ProductScreen from "../screens/ProductScreen";
-import ConfirmScreen from "../screens/ConfirmScreen";
+import AddressScreen from "../screens/AddressScreen";
 //create the stack containers to hold the screens
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -113,10 +113,11 @@ const StackNavigation = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="Confirmation"
-          component={ConfirmScreen}
-          options={{ headerShown: false }}
+          name="Address"
+          component={AddressScreen}
+          options={{ headerTitleAlign: "center", headerLeft: null }}
         />
+
         <Stack.Screen
           name="Bottom"
           component={BottomTab}

@@ -37,8 +37,7 @@ const CartScreen = () => {
     return totalPrice;
   };
   const handleCheckOut = () => {
-    navigation.navigate("Confirmation");
-    cleanCart();
+    navigation.navigate("Address");
   };
   return (
     <ScrollView showsHorizontalScrollIndicator={false}>
@@ -89,13 +88,14 @@ const CartScreen = () => {
               >
                 <SimpleLineIcons name="plus" size={25} color={"#fff"} />
               </TouchableOpacity>
-              <Text>{item.quantity}</Text>
+              <Text style={{ color: "white" }}>{item.quantity}</Text>
               <TouchableOpacity
                 onPress={() => decrementQuantity(item)}
                 style={{ marginHorizontal: 5 }}
               >
                 <SimpleLineIcons name="minus" size={25} color={"#fff"} />
               </TouchableOpacity>
+
               <TouchableOpacity
                 style={{ marginHorizontal: 5 }}
                 onPress={() => removeFromCart(item)}
@@ -106,6 +106,7 @@ const CartScreen = () => {
           </View>
         </View>
       ))}
+
       {cartItems.length > 0 && (
         <View
           style={[

@@ -1,9 +1,11 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, } from "react-native";
+import { StyleSheet, View } from "react-native";
 import StackNavigation from "./navigation/StackNavigation";
+import { CartProvider } from "./cart/CartContext";
 export default function App() {
   return (
-    <StackNavigation />
+    <CartProvider>
+      <StackNavigation />
+    </CartProvider>
   );
 }
 
